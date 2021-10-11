@@ -1,0 +1,22 @@
+* { 
+  margin: 0; 
+}
+
+.app{
+  background-color: #fafafa;
+  height: 100vh; 
+}
+
+.app_header {
+   /*it means that no matter what size the container 
+   it will look perfect - no stretching or anything like that  */
+  object-fit: contain;
+  padding: 20px;
+  border-bottom: 1px solid lightgrey;
+  background-color: white;
+}
+
+.post_container{ 
+  display: table;
+  margin: 0 auto;
+}
