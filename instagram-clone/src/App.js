@@ -3,7 +3,7 @@ import './App.css';
 import Post from './Post';
 import { doc, collection, onSnapshot, getDocs } from "firebase/firestore";
 import { db, auth, storage } from './firebase';
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, updateProfile, signOut, signInWithEmailAndPassword } from "firebase/auth";
 import Modal from '@mui/material/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@mui/material/Button';
@@ -39,6 +39,7 @@ function App() {
   const [modalStyle] = useState(getModalStyle); 
   const [posts, setPosts] = useState([]);
   const [open, setOpen] = useState(false); // checking if the modal is open or not 
+  const [openSignIn, setOpenSignIn] = useState(false); //to check if the user is signed in
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -66,21 +67,6 @@ function App() {
         // if logged in 
         console.log(authUser);
         setUser(authUser); //this keeps you logged in 
-
-        //TODO: DELETE THIS PART
-        // if (authUser.displayName) { 
-        //   //don't update username
-        // } else { 
-        //   // if we just created someone
-        //   return updateProfile(auth.currentUser, { 
-        //     displayName: username
-        //   });
-
-        //   // return authUser.updateProfile({
-        //   //   displayName: username
-        //   // });
-        // }
-
       } else { 
         // if logged out
         setUser(null)
@@ -117,16 +103,25 @@ function App() {
         });
       })
       .catch((error) => alert(error.message));
+  }
+
+  const signIn = (event) => { 
+    event.preventDefault();
+    signInWithEmailAndPassword(auth, email, password)
+    .then((authUser) => { 
+      return updateProfile(auth.currentUser, {
+        displayName: username
+      });
+    })
+    .catch((error) => alert(error.message));
     
-      //TODO: delete this part
-    // auth.createUserWithEmailAndPassword(email, password) //the email and password are from the states
-    // .catch((error) => alert(error.message));
+    setOpenSignIn(false); //we want modal to close
   }
 
   return (
     <div className="App">
 
-      {/* Modal */}
+      {/* Modal for sign up */}
       <Modal
         // copied from material UI 
         open={open}
@@ -164,6 +159,38 @@ function App() {
         </div>
       </Modal>
 
+      {/* Modal for sign in */}
+      <Modal
+        // copied from material UI 
+        open={openSignIn}
+        onClose={() => setOpenSignIn(false)}
+      >
+        <div style={modalStyle} className={classes.paper}> 
+          <form>
+            <center className="app_signUp">
+              <img
+                className="app_modalHeaderImg"
+                src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
+                alt=""
+              />
+              <Input 
+                placeholder="email"
+                type="text"
+                value={ email }
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Input 
+                placeholder="password"
+                type="password"
+                value={ password }
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Button type="submit" onClick={ signIn }>signUp</Button>
+            </center>
+          </form>
+        </div>
+      </Modal>
+
       {/* header */}
       <div className="app_header">
         <img className="app_headerImg"
@@ -172,7 +199,15 @@ function App() {
         </img>
       </div>
 
-      <Button onClick={() => setOpen(true)}>Sign Up</Button>
+      {/* If user is logged in button should be Logged out */}
+      {user ? (
+        <Button onClick={() => signOut(auth)}>Logout</Button>
+      ) : (
+        <div className="app_loginContainer">
+          <Button onClick={() => setOpenSignIn(true)}>Sign In</Button>
+          <Button onClick={() => setOpen(true)}>Sign Up</Button>
+        </div>
+      )}
 
       <h1>HELLO</h1>
       {/* Bunch of posts: 
