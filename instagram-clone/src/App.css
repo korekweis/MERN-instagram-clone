@@ -20,3 +20,15 @@
   display: table;
   margin: 0 auto;
 }
+
+.app_modalHeaderImg{
+  align-self: center;
+  object-fit: contain;
+  width: 150px;
+}
+
+.app_signUp { 
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}

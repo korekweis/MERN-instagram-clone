@@ -3,9 +3,12 @@ import './App.css';
 import Post from './Post';
 import { doc, collection, onSnapshot, getDocs } from "firebase/firestore";
 import { db, auth, storage } from './firebase';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import Modal from '@mui/material/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
+import { create } from '@mui/material/styles/createTransitions';
 
 
 
@@ -34,11 +37,16 @@ const useStyles = makeStyles((theme) => ({
 function App() {
   const classes = useStyles();
   const [modalStyle] = useState(getModalStyle); 
-  
   const [posts, setPosts] = useState([]);
-  //checking if the modal is open or not 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false); // checking if the modal is open or not 
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [user, setUser] = useState(null); // for user authentication
 
+
+
+  // fetching and displaying all of the posts
   const fetchPost = async() => {
     const posts = collection(db, 'posts');
     const snapshot = await getDocs(posts);
@@ -52,6 +60,45 @@ function App() {
     })));
   }
 
+  useEffect(() => { 
+    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+      if (authUser) { 
+        // if logged in 
+        console.log(authUser);
+        setUser(authUser); //this keeps you logged in 
+
+        //TODO: DELETE THIS PART
+        // if (authUser.displayName) { 
+        //   //don't update username
+        // } else { 
+        //   // if we just created someone
+        //   return updateProfile(auth.currentUser, { 
+        //     displayName: username
+        //   });
+
+        //   // return authUser.updateProfile({
+        //   //   displayName: username
+        //   // });
+        // }
+
+      } else { 
+        // if logged out
+        setUser(null)
+      }
+    })
+
+    return () => { 
+      // perform clean up actions before you fire useEffect
+      /** so if the username changes, we have to detach the listener so that 
+       * there won't have duplicates and then we will refire it. 
+       */
+      unsubscribe();
+    }
+
+    // should place user and username since it should update everytime it changes
+  }, [user, username]);
+
+
   //useEffect - runs a piece of code based on a specific condition
   useEffect(() => { 
     //this is where the code runs
@@ -59,16 +106,61 @@ function App() {
   }, []);
   // empty [] means to run the code once. If [posts] it means to run the code everytime posts change
 
+  //function made for signing up
+  const signUp = (event) => { 
+    // so that the form won't refresh when we submit
+    event.preventDefault();
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((authUser) => { 
+        return updateProfile(auth.currentUser, { 
+          displayName: username
+        });
+      })
+      .catch((error) => alert(error.message));
+    
+      //TODO: delete this part
+    // auth.createUserWithEmailAndPassword(email, password) //the email and password are from the states
+    // .catch((error) => alert(error.message));
+  }
+
   return (
     <div className="App">
 
+      {/* Modal */}
       <Modal
         // copied from material UI 
         open={open}
         onClose={() => setOpen(false)}
       >
         <div style={modalStyle} className={classes.paper}> 
-          <h2>I AM A MODAL</h2>
+          <form>
+            <center className="app_signUp">
+              <img
+                className="app_modalHeaderImg"
+                src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
+                alt=""
+              />
+              <Input 
+                placeholder="username"
+                type="text"
+                value={ username }
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <Input 
+                placeholder="email"
+                type="text"
+                value={ email }
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Input 
+                placeholder="password"
+                type="password"
+                value={ password }
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Button type="submit" onClick={ signUp }>signUp</Button>
+            </center>
+          </form>
         </div>
       </Modal>
 
@@ -80,7 +172,7 @@ function App() {
         </img>
       </div>
 
-      <Button></Button>
+      <Button onClick={() => setOpen(true)}>Sign Up</Button>
 
       <h1>HELLO</h1>
       {/* Bunch of posts: 
