@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Post from './Post';
-import { doc, collection, onSnapshot, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db, auth, storage } from './firebase';
 import { getAuth, createUserWithEmailAndPassword, updateProfile, signOut, signInWithEmailAndPassword } from "firebase/auth";
 import Modal from '@mui/material/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@mui/material/Button';
 import Input from '@mui/material/Input';
-import { create } from '@mui/material/styles/createTransitions';
+import ImageUpload from './ImageUpload';
 
 
 
@@ -101,6 +101,13 @@ function App() {
         return updateProfile(auth.currentUser, { 
           displayName: username
         });
+        
+        console.log(authUser);
+        console.log(auth.user);
+        // TODO: DELETE THIS
+        // return updateProfile(auth.currentUser, { 
+        //   displayName: username
+        // });
       })
       .catch((error) => alert(error.message));
   }
@@ -108,9 +115,9 @@ function App() {
   const signIn = (event) => { 
     event.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
-    .then((authUser) => { 
-      return updateProfile(auth.currentUser, {
-        displayName: username
+      .then((authUser) => { 
+        return updateProfile(auth.currentUser, {
+          displayName: username
       });
     })
     .catch((error) => alert(error.message));
@@ -120,6 +127,16 @@ function App() {
 
   return (
     <div className="App">
+      {/* check first if the user is signed in */}
+      { user?.displayName ? (
+        <div className="app_upload">
+          <ImageUpload username = { user.displayName }/>
+        </div>
+      ):(
+        <center> 
+         <h3>Sorry you need to login to upload</h3>
+        </center>
+      )}
 
       {/* Modal for sign up */}
       <Modal
@@ -153,7 +170,7 @@ function App() {
                 value={ password }
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <Button type="submit" onClick={ signUp }>signUp</Button>
+              <Button type="submit" onClick={ signUp }>Sign Up</Button>
             </center>
           </form>
         </div>
@@ -185,7 +202,7 @@ function App() {
                 value={ password }
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <Button type="submit" onClick={ signIn }>signUp</Button>
+              <Button type="submit" onClick={ signIn }>Sign In</Button>
             </center>
           </form>
         </div>
