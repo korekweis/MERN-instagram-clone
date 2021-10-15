@@ -6,7 +6,7 @@ import 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";  
 
 
-function ImageUpload(username) {
+function ImageUpload({ username }) {
 
     const [caption, setCaption] = useState('');
     const [image, setImage] = useState(null);
@@ -24,7 +24,7 @@ function ImageUpload(username) {
         await addDoc(collection(db, "posts"), {
             timestamp: serverTimestamp(),
             caption: caption, 
-            imageUrl: url, 
+            imgsrc: url, 
             username: username
         });
     }
@@ -36,8 +36,10 @@ function ImageUpload(username) {
          * image.name -> is the filename that was selected
          * put(image) -> put the image in that variable
          */
+        //  const storageRef = ref(storage, `images/BTS.jpeg`)
         const storageRef = ref(storage, `images/${image.name}`)
-        const uploadTask = uploadBytesResumable(storageRef);
+        const uploadTask = uploadBytesResumable(storageRef, image);
+        // console.log(uploadTask);
         // const uploadTask = storage.ref(`images/${image.name}`).put(image);
 
         uploadTask.on(
@@ -59,6 +61,8 @@ function ImageUpload(username) {
                 //     .ref(storage, "images")
                 //     .child(image.name)
                 //     .getDownloadUrl()
+
+                // TODO: this is where it started
                 getDownloadURL(uploadTask.snapshot.ref)
                     .then(url => { 
                         // post image inside the database
@@ -68,6 +72,7 @@ function ImageUpload(username) {
                         //     imageUrl: url, 
                         //     username: username
                         // });
+                        console.log(url);
                         addImage(caption, url, username);
                         
 

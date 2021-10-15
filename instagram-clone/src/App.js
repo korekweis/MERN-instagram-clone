@@ -9,7 +9,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Button from '@mui/material/Button';
 import Input from '@mui/material/Input';
 import ImageUpload from './ImageUpload';
-
+import { doc, onSnapshot } from "firebase/firestore";
 
 
 function getModalStyle() { 
@@ -49,12 +49,14 @@ function App() {
 
   // fetching and displaying all of the posts
   const fetchPost = async() => {
+    // TODO: tO DELETE
     const posts = collection(db, 'posts');
     const snapshot = await getDocs(posts);
     /** 
      * snapshot - eveytime the collection is deleted updated uploaded its gonna take a snapshot and its 
      * going to refire the code inside
     */
+  //  TODO: DO THIS PART 
     setPosts(snapshot.docs.map((doc) => ({
       id: doc.id, 
       post: doc.data()
