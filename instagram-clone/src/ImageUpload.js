@@ -1,4 +1,5 @@
 import React, { useState, Firebase } from 'react'
+import "./ImageUpload.css";
 import { Button } from '@mui/material';
 import { storage, db } from './firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"
@@ -91,17 +92,19 @@ function ImageUpload({ username }) {
         - file picker 
         - post button
         */
-        <div>
-            <progress className="imageUpload_progress" value={progress} max="100"/>
-            <input type="text" 
-            placeholder="Enter a caption..." 
-            // event -> every action like key change and etc
-            onChange={event => setCaption(event.target.value)}
-            value={ caption } 
-            />
-           <input type="file" onChange={ handleChange }/>
-           <Button onClick={ handleUpload }> Upload </Button>
-        </div>
+       <div className="imageUpload_parent">
+            <div className="imageUpload">
+                <progress className="imageUpload_progress" value={progress} max="100"/>
+                <input type="text" 
+                placeholder="Enter a caption..." 
+                // event -> every action like key change and etc
+                onChange={event => setCaption(event.target.value)}
+                value={ caption } 
+                />
+            <input type="file" onChange={ handleChange }/>
+            <Button onClick={ handleUpload }> Upload </Button>
+            </div>
+       </div>
     )
 }
 

@@ -9,7 +9,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Button from '@mui/material/Button';
 import Input from '@mui/material/Input';
 import ImageUpload from './ImageUpload';
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, orderBy, query } from "firebase/firestore";
 
 
 function getModalStyle() { 
@@ -51,7 +51,11 @@ function App() {
   const fetchPost = async() => {
     // TODO: tO DELETE
     const posts = collection(db, 'posts');
-    const snapshot = await getDocs(posts);
+    const  q = query(posts, orderBy("timestamp", "desc"));
+    const snapshot = await getDocs(q);
+    //TODO: delete 
+    // const snapshot = await getDocs(posts);
+    
     /** 
      * snapshot - eveytime the collection is deleted updated uploaded its gonna take a snapshot and its 
      * going to refire the code inside
@@ -129,17 +133,6 @@ function App() {
 
   return (
     <div className="App">
-      {/* check first if the user is signed in */}
-      { user?.displayName ? (
-        <div className="app_upload">
-          <ImageUpload username = { user.displayName }/>
-        </div>
-      ):(
-        <center> 
-         <h3>Sorry you need to login to upload</h3>
-        </center>
-      )}
-
       {/* Modal for sign up */}
       <Modal
         // copied from material UI 
@@ -216,17 +209,17 @@ function App() {
         src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
         alt="" >
         </img>
-      </div>
 
-      {/* If user is logged in button should be Logged out */}
-      {user ? (
-        <Button onClick={() => signOut(auth)}>Logout</Button>
-      ) : (
-        <div className="app_loginContainer">
-          <Button onClick={() => setOpenSignIn(true)}>Sign In</Button>
-          <Button onClick={() => setOpen(true)}>Sign Up</Button>
-        </div>
-      )}
+        {/* If user is logged in button should be Logged out */}
+        {user ? (
+          <Button onClick={() => signOut(auth)}>Logout</Button>
+        ) : (
+          <div className="app_loginContainer">
+            <Button onClick={() => setOpenSignIn(true)}>Sign In</Button>
+            <Button onClick={() => setOpen(true)}>Sign Up</Button>
+          </div>
+        )}
+      </div>
 
       <h1>HELLO</h1>
       {/* Bunch of posts: 
@@ -235,12 +228,25 @@ function App() {
         - post
       */}
       <div className="post_container">
-        {
-          posts.map(({id, post}) => (
-            <Post username={post.username} avatar={post.avatar} imgsrc={post.imgsrc} caption={post.caption}
-            key={id} />
-          ))
-        }
+
+        <div className="app_posts">
+          {
+            posts.map(({id, post}) => (
+              <Post username={post.username} avatar={post.avatar} imgsrc={post.imgsrc} caption={post.caption}
+              key={id} />
+            ))
+          }
+        </div>
+        {/* check first if the user is signed in */}
+        { user?.displayName ? (
+          <div className="app_upload">
+            <ImageUpload username = { user.displayName }/>
+          </div>
+        ):(
+          <center> 
+          <h3>Sorry you need to login to upload</h3>
+          </center>
+        )}
       </div>
     </div>
   );
