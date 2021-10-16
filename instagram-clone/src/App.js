@@ -95,6 +95,9 @@ function App() {
   useEffect(() => { 
     //this is where the code runs
     fetchPost();
+    return () => {
+      fetchPost();
+    }
   }, []);
   // empty [] means to run the code once. If [posts] it means to run the code everytime posts change
 
@@ -232,8 +235,8 @@ function App() {
         <div className="app_posts">
           {
             posts.map(({id, post}) => (
-              <Post username={post.username} avatar={post.avatar} imgsrc={post.imgsrc} caption={post.caption}
-              key={id} />
+              <Post postId={id} username={post.username} avatar={post.avatar} 
+                imgsrc={post.imgsrc} caption={post.caption} key={id} />
             ))
           }
         </div>
