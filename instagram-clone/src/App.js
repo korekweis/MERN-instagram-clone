@@ -73,6 +73,10 @@ function App() {
         // if logged in 
         console.log(authUser);
         setUser(authUser); //this keeps you logged in 
+        // setUsername(username);
+        updateProfile(auth.currentUser, { 
+          displayName: username
+        });
       } else { 
         // if logged out
         setUser(null)
@@ -107,12 +111,9 @@ function App() {
     event.preventDefault();
     createUserWithEmailAndPassword(auth, email, password)
       .then((authUser) => { 
-        return updateProfile(auth.currentUser, { 
-          displayName: username
-        });
-        
-        console.log(authUser);
-        console.log(auth.user);
+        // updateProfile(auth.currentUser, { 
+        //   displayName: username
+        // });
         // TODO: DELETE THIS
         // return updateProfile(auth.currentUser, { 
         //   displayName: username
@@ -124,11 +125,11 @@ function App() {
   const signIn = (event) => { 
     event.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
-      .then((authUser) => { 
-        return updateProfile(auth.currentUser, {
-          displayName: username
-      });
-    })
+    //   .then((authUser) => { 
+    //     return updateProfile(auth.currentUser, {
+    //       displayName: username
+    //   });
+    // })
     .catch((error) => alert(error.message));
     
     setOpenSignIn(false); //we want modal to close
@@ -223,8 +224,7 @@ function App() {
           </div>
         )}
       </div>
-
-      <h1>HELLO</h1>
+      
       {/* Bunch of posts: 
         - post 
         - post 
@@ -236,7 +236,7 @@ function App() {
           {
             posts.map(({id, post}) => (
               <Post postId={id} username={post.username} avatar={post.avatar} 
-                imgsrc={post.imgsrc} caption={post.caption} key={id} />
+                imgsrc={post.imgsrc} caption={post.caption} currUser={user} key={id} />
             ))
           }
         </div>

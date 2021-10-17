@@ -2,23 +2,37 @@ import React, { useState, useEffect } from 'react';
 import './Post.css';
 import Avatar from '@mui/material/Avatar';
 import { db, auth, storage } from './firebase';
-import { collection, getDocs, doc} from "firebase/firestore";
+import { collection, getDocs, doc, addDoc, serverTimestamp, orderBy, query} from "firebase/firestore";
 
-function Post({ postId, username, avatar, imgsrc, caption }) {
+function Post({ postId, username, avatar, imgsrc, caption, currUser }) {
 
     const[comments, setComments] = useState([]);
     const[comment, setComment] = useState("");
 
+    const addComment = async(postId, comment, currUser) => { 
+        console.log(`currUser1: ${currUser}`);
+        await addDoc(collection(db, "posts", postId, "comments"), {
+            text: comment, 
+            username: currUser.displayName,
+            timestamp: serverTimestamp(),
+        });
+        console.log(`currUse2: ${currUser}`);
+    }
+
     // posting of comments
     const postComment = (event) => { 
-
+        event.preventDefault();
+        addComment(postId, comment, currUser);
+        // clear the box again
+        setComment("");
     }
 
     //3:17
     const fetchComments = async() => { 
         console.log(`postId: ${postId}`);
         const comment_list = collection(db, "posts", postId, "comments");
-        const snapshot = await getDocs(comment_list);
+        const q = query(comment_list, orderBy("timestamp"));
+        const snapshot = await getDocs(q);
 
         setComments(snapshot.docs.map((doc) => ( 
             doc.data()
@@ -63,23 +77,25 @@ function Post({ postId, username, avatar, imgsrc, caption }) {
                 ))}
             </div>
 
-            <form className="post_commentBox"> 
-                <input className="post_input"
-                    type="text"
-                    placeholder="Add a comment..."
-                    value={ comment }
-                    onChange={(e) => setComments(e.target.value)}
-                />
-                <button
-                    className="post_button"
-                    // it is disabled if there is no comment
-                    disabled={ !comment }
-                    type="submit"
-                    onClick={ postComment }
-                    >
-                    Post
-                </button>
-            </form>
+            { currUser && (
+                <form className="post_commentBox"> 
+                    <input className="post_input"
+                        type="text"
+                        placeholder="Add a comment..."
+                        value={ comment }
+                        onChange={(e) => setComment(e.target.value)}
+                    />
+                    <button
+                        className="post_button"
+                        // it is disabled if there is no comment
+                        disabled={ !comment }
+                        type="submit"
+                        onClick={ postComment }
+                        >
+                        Post
+                    </button>
+                </form>
+            )}
         </div>
     )
 }
